@@ -11,10 +11,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
+import csci476_lab1.CredInfo;
 
 /**
  *
- * @author darnesey
+ * @author darnesey, will
  */
 public class CSCI476_Lab1 {
 
@@ -25,6 +26,7 @@ public class CSCI476_Lab1 {
 	// write your code here
 
         DumpReader dump = new DumpReader(args[1]);
+        String[] credit = new CredInfo.CreditInfo(dump);
         
 //        FileInputStream read = new FileInputStream(args[0]);
 //        FileWriter write = new FileWriter("output.txt");
