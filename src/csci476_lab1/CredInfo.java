@@ -54,11 +54,13 @@ public class CredInfo {
     									if(foundAlphaA == true){
     										   creditCardNumber[foundNum ] = "%B"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
     										   foundNum++;
+    										   foundAlphaA = false;
     										   end = null;
     								   }
     								   if(foundAlphaB == true){
     										   creditCardNumber[foundNum ] = "%"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
     										   foundNum++;
+    										   foundAlphaB = false;
     										   end = null;
     								   }
 								   }
