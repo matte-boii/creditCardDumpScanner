@@ -25,13 +25,22 @@ public class CredInfo {
 		private static String creditNumber;
 		private static String primaryAccountNumber;
 		private static String name;
+		private static String CountryCode;
+		private static String expirationDate;
+		private static String discretionaryData;
 		private static boolean foundAlpha;
-		public static void CreditInfo(String[] dump) {
+		private static int alphaIndex = -1;
+		
+		public static String CreditInfo(String[] dump) {
 				   for (String bit : dump){
 						   if(!bit.equals(".")){
-								   int alphaIndex = lastIndexOfUCL(bit);
-								   findingCardInfo(alphaIndex, bit);
+								if(alphaIndex == -1)
+										alphaIndex = lastIndexOfUCL(bit);
+								if(alphaIndex != -1)
+										findingCardInfo(alphaIndex, bit);
 						   }
+						   else
+								   return null;
 				   }
 		   }
 		public static int lastIndexOfUCL(String str) {     
@@ -46,20 +55,28 @@ public class CredInfo {
 				        return -1;
 			    }
 		private static void findingCardInfo(int alphaIndex, String bit) {
-				String before = "";
-				int countPrim = 0;
-				bit = bit.substring(alphaIndex, bit.length());
+				char before;
+				int primary = 0;
+				if(bit.substring(alphaIndex, alphaIndex) == "B")
+						bit = bit.substring(alphaIndex, bit.length());
 				for(char now : bit.toCharArray()){
-						if(foundAlpha && now == '^'){
-								
+						if(foundAlpha && now == '^' && !Character.isDigit(now)){
+								if(primary == 19){
+										discretionaryData = discretionaryData + now;
+								}
+								else
+										primary = 19;
 						}
 						else if(Character.isAlphabetic(now)){
 								name = name + now;
 						}								
-						else if(foundAlpha && countPrim >19 && Character.isDigit(now)){
+						else if(foundAlpha && primary <19 && Character.isDigit(now)){
 								creditNumber = creditNumber + now;
 								primaryAccountNumber = primaryAccountNumber + now;
-								countPrim++;
+								primary++;
+						}
+						else if(foundAlpha && Character.isDigit(now)){
+								CountryCode = CountryCode + now;
 						}
 						else
 								before = now;
