@@ -22,60 +22,110 @@ import java.util.Scanner;
  * @author Will
  */
 public class CredInfo {
-		private static String creditNumber;
+		private static String[] creditCardNumber;
 		private static String primaryAccountNumber;
 		private static String name;
 		private static String CountryCode;
 		private static String expirationDate;
 		private static String discretionaryData;
-		private static boolean foundAlpha;
+		private static boolean foundAlphaA;
+		private static boolean foundAlphaB;
 		private static int alphaIndex = -1;
+		private static int foundNum = 0;
 		
 		public static String CreditInfo(String[] dump) {
+				String end;
 				   for (String bit : dump){
 						   if(!bit.equals(".")){
-								if(alphaIndex == -1)
-										alphaIndex = lastIndexOfUCL(bit);
-								if(alphaIndex != -1)
-										findingCardInfo(alphaIndex, bit);
-						   }
-						   else
-								   return null;
+								if(alphaIndex == -1){
+										alphaIndex = lastIndexOfUCL(bit, 'B');
+										foundAlphaA = true;}
+								else if(alphaIndex == -1){
+										alphaIndex = lastIndexOfUCL(bit, '%');
+										foundAlphaB = true;}
+								if(alphaIndex != -1 && end != "?"){
+										if(foundAlphaA == true)
+												end = findingCardInfoTrack1B(alphaIndex, bit);
+										else if(foundAlphaB == true){
+												end =findingCardInfoTrack2(alphaIndex, bit);
+										}
+								}
+								else if(end == "?"){
+    									if(foundAlphaA == true){
+    										   creditCardNumber[foundNum ] = "%B"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
+    										   foundNum++;
+    										   end = null;
+    								   }
+    								   if(foundAlphaB == true){
+    										   creditCardNumber[foundNum ] = "%"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
+    										   foundNum++;
+    										   end = null;
+    								   }
+								   }
+						   }								  
 				   }
 		   }
-		public static int lastIndexOfUCL(String str) {     
-        		char B = 'B';   
+		private static String findingCardInfoTrack2(int alphaIndex, String bit) {
+			char before;
+			int primary = 0;
+			if(bit.substring(alphaIndex, alphaIndex) == "B")
+				bit = bit.substring(alphaIndex, bit.length());
+    		for(char now : bit.toCharArray()){
+    				if(foundAlphaB && now == '^' && !Character.isDigit(now)){
+    						if(primary == 19 && now != '?'){
+    								discretionaryData = discretionaryData + now;
+    						}
+    						else if(now != '?')
+    								return "?";
+    						else
+    								primary = 19;
+    				}
+    				else if(Character.isAlphabetic(now)){
+    						name = name + now;
+    				}								
+    				else if(foundAlphaB && primary <19 && Character.isDigit(now)){
+    						primaryAccountNumber = primaryAccountNumber + now;
+    						primary++;
+    				}
+    				else if(foundAlphaB && Character.isDigit(now)){
+    						CountryCode = CountryCode + now;
+    				}
+    				else
+    						before = now;
+    		}	
+		}
+		public static int lastIndexOfUCL(String str, char looking) {     
 				    for(int i=0; i<=str.length(); i++) {
 				            if(Character.isUpperCase(str.charAt(i))) {
-								if(str.charAt(i) == B)
-										foundAlpha = true;
+								if(str.charAt(i) == looking)
 										return i;
 				            }
 				        }
 				        return -1;
 			    }
-		private static void findingCardInfo(int alphaIndex, String bit) {
+		private static String findingCardInfoTrack1B(int alphaIndex, String bit) {
 				char before;
 				int primary = 0;
 				if(bit.substring(alphaIndex, alphaIndex) == "B")
 						bit = bit.substring(alphaIndex, bit.length());
 				for(char now : bit.toCharArray()){
-						if(foundAlpha && now == '^' && !Character.isDigit(now)){
-								if(primary == 19){
-										discretionaryData = discretionaryData + now;
-								}
-								else
-										primary = 19;
+						if(foundAlphaA && now == '^' && !Character.isDigit(now)){
+								if(primary == 19 && now != '?'){
+	    								discretionaryData = discretionaryData + now;
+	    						}
+	    						else if(now != '?')
+	    								return "?";
+	    						else
+	    								primary = 19;
 						}
 						else if(Character.isAlphabetic(now)){
 								name = name + now;
 						}								
-						else if(foundAlpha && primary <19 && Character.isDigit(now)){
-								creditNumber = creditNumber + now;
+						else if(foundAlphaA && primary <19 && Character.isDigit(now)){
 								primaryAccountNumber = primaryAccountNumber + now;
 								primary++;
 						}
-						else if(foundAlpha && Character.isDigit(now)){
+						else if(foundAlphaA && Character.isDigit(now)){
 								CountryCode = CountryCode + now;
 						}
 						else
