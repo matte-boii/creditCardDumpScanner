@@ -5,96 +5,123 @@
  */
 package csci476_lab1;
 
-import java.io.FileInputStream;
-import java.utilities.*;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Scanner;
-
+import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 /**
  *
  * @author Will
  */
 public class CredInfo {
-		private static String[] creditCardNumber;
-		private static String primaryAccountNumber;
-		private static String name;
-		private static String CountryCode;
-		private static String expirationDate;
-		private static String discretionaryData;
+		private static String[] creditCardNumber = null;
+		private static String primaryAccountNumber = null;
+		private static String name = null;
+		private static String CountryCode= null;
+		private static String expirationDate=null;
+		private static String discretionaryData=null;
 		private static boolean foundAlphaA;
 		private static boolean foundAlphaB;
 		private static int alphaIndex = -1;
 		private static int foundNum = 0;
+		private static String rawdata = null;
 		
-		public static String CreditInfo(String[] dump) {
-				String end;
+		public static String[] CreditInfo(String[] dump) {
+				String end = null;
 				   for (String bit : dump){
 						   if(!bit.equals(".")){
 								if(alphaIndex == -1){
 										alphaIndex = lastIndexOfUCL(bit, 'B');
 										foundAlphaA = true;}
 								else if(alphaIndex == -1){
-										alphaIndex = lastIndexOfUCL(bit, '%');
+										alphaIndex = lastIndexOfUCL(bit, ';');
 										foundAlphaB = true;}
 								if(alphaIndex != -1 && end != "?"){
 										if(foundAlphaA == true)
-												end = findingCardInfoTrack1B(alphaIndex, bit);
+												end = findingCardInfo(alphaIndex, bit, "B");
 										else if(foundAlphaB == true){
-												end =findingCardInfoTrack2(alphaIndex, bit);
+												end =findingCardInfo(alphaIndex, bit, ";");
 										}
 								}
 								else if(end == "?"){
     									if(foundAlphaA == true){
-    										   creditCardNumber[foundNum ] = "%B"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
-    										   foundNum++;
-    										   foundAlphaA = false;
-    										   end = null;
+    										hashingOutCreditInfo("track1");
+    										creditCardNumber[foundNum ] = "%B"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
+    										foundNum++;
+    										foundAlphaA = false;
+    										end = null;
     								   }
     								   if(foundAlphaB == true){
-    										   creditCardNumber[foundNum ] = "%"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
-    										   foundNum++;
-    										   foundAlphaB = false;
-    										   end = null;
+    									   hashingOutCreditInfo("track2");
+    									   creditCardNumber[foundNum ] = "%"+primaryAccountNumber+"^"+name+"^"+expirationDate+CountryCode+discretionaryData;
+    									   foundNum++;
+    									   foundAlphaB = false;
+    									   end = null;
     								   }
 								   }
 						   }								  
 				   }
+				return creditCardNumber;
 		   }
-		private static String findingCardInfoTrack2(int alphaIndex, String bit) {
-			char before;
-			int primary = 0;
-			if(bit.substring(alphaIndex, alphaIndex) == "B")
+		private static String hashingOutCreditInfo(String track) {
+			String before = null;
+			if(track == "track1"){
+				for(char now : rawdata.toCharArray()){
+					if(!Character.isDigit(now) && name == null){
+						primaryAccountNumber = primaryAccountNumber + now;
+						}
+					else if((Character.isAlphabetic(now) || now == '\'') && primaryAccountNumber != null){
+						name = name + now;
+						}
+					else if(Character.isDigit(now) && before.length() < 4){
+						before = before + now;
+							}
+					if(before.length() == 4){
+						if(DateParser(before, "MMYY")){
+							expirationDate = before;
+							}
+						else
+							continue;
+						}
+					else if(Character.isDigit(now)){
+						discretionaryData = discretionaryData + now;
+					}
+					else if(now == '?')
+					{
+						return "?";
+					}
+						
+				}
+			}
+			return null;
+			
+		}
+		private static boolean DateParser(String value, String format) {
+			Date date = null;
+	        try {
+	            SimpleDateFormat sdf = new SimpleDateFormat(format);
+	            date = sdf.parse(value);
+	            if (!value.equals(sdf.format(date))) {
+	                date = null;
+	            }
+	        } catch (ParseException ex) {
+	            ex.printStackTrace();
+	        }
+	        return true;
+	    }
+		private static String findingCardInfo(int alphaIndex, String bit, String track) {
+			if(bit.substring(alphaIndex, alphaIndex) == track)
 				bit = bit.substring(alphaIndex, bit.length());
     		for(char now : bit.toCharArray()){
-    				if(foundAlphaB && now == '^' && !Character.isDigit(now)){
-    						if(primary == 19 && now != '?'){
-    								discretionaryData = discretionaryData + now;
-    						}
-    						else if(now != '?')
-    								return "?";
-    						else
-    								primary = 19;
-    				}
-    				else if(Character.isAlphabetic(now)){
-    						name = name + now;
-    				}								
-    				else if(foundAlphaB && primary <19 && Character.isDigit(now)){
-    						primaryAccountNumber = primaryAccountNumber + now;
-    						primary++;
-    				}
-    				else if(foundAlphaB && Character.isDigit(now)){
-    						CountryCode = CountryCode + now;
-    				}
-    				else
-    						before = now;
-    		}	
+    			if(now == 'y')
+    			{
+    				rawdata = rawdata + now;
+    				return "?";
+    			}
+    			else
+    				rawdata = rawdata + now;
+    		}
+			return null;	
 		}
 		public static int lastIndexOfUCL(String str, char looking) {     
 				    for(int i=0; i<=str.length(); i++) {
@@ -105,33 +132,4 @@ public class CredInfo {
 				        }
 				        return -1;
 			    }
-		private static String findingCardInfoTrack1B(int alphaIndex, String bit) {
-				char before;
-				int primary = 0;
-				if(bit.substring(alphaIndex, alphaIndex) == "B")
-						bit = bit.substring(alphaIndex, bit.length());
-				for(char now : bit.toCharArray()){
-						if(foundAlphaA && now == '^' && !Character.isDigit(now)){
-								if(primary == 19 && now != '?'){
-	    								discretionaryData = discretionaryData + now;
-	    						}
-	    						else if(now != '?')
-	    								return "?";
-	    						else
-	    								primary = 19;
-						}
-						else if(Character.isAlphabetic(now)){
-								name = name + now;
-						}								
-						else if(foundAlphaA && primary <19 && Character.isDigit(now)){
-								primaryAccountNumber = primaryAccountNumber + now;
-								primary++;
-						}
-						else if(foundAlphaA && Character.isDigit(now)){
-								CountryCode = CountryCode + now;
-						}
-						else
-								before = now;
-				}
-		}
 }
