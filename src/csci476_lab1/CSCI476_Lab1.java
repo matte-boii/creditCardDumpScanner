@@ -5,13 +5,10 @@
  */
 package csci476_lab1;
 
-import java.io.FileInputStream;
+
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Scanner;
-import csci476_lab1.CredInfo;
+import java.util.ArrayList;
 
 /**
  *
@@ -25,68 +22,17 @@ public class CSCI476_Lab1 {
    public static void main(String[] args) throws FileNotFoundException, IOException {
 	// write your code here
 
-        DumpReader dump = new DumpReader(args[1]);
-        String[] credit = new CredInfo.CreditInfo(dump);
+        DumpReader dump = new DumpReader(args[0]);
         
-//        FileInputStream read = new FileInputStream(args[0]);
-//        FileWriter write = new FileWriter("output.txt");
-//        int i = 0;
-//        String s = "";
-//        int nonsense = 0;
-//        int[] code = new int[32];
-//        while (read.available() > 0){
-//            while (i < 32) {
-//                code[i] = read.read();
-//                if (code[i] < 127 && code[i] > 32) { //avoid special keys
-//                    s += (char) code[i];
-//                    nonsense = 0;
-//                } else {
-//                    nonsense++;
-//                    if (nonsense == 4){
-//                            System.out.print("..");
-//                            write.write(".");
-//                            nonsense = 0;
-//                    }
-//                }
-//                code[i] = 0;
-//                i++;
-//            }
-//            //System.out.print(s + "\n");
-//            i = 0;
-//            
-//            while (i < 32) {
-//                code[i] = read.read();
-//                if (code[i] < 127 && code[i] > 32) { //avoid special keys
-//                    s += (char) code[i];
-//                    nonsense = 0;
-//                } else {
-//                    nonsense++;
-//                    if (nonsense == 4) {
-//                            System.out.print(".");
-//                            write.write(".");
-//                            nonsense = 0;
-//                    }
-//                }
-//                code[i] = 0;
-//                i++;
-//            }
-//            System.out.print(s + "\n");
-//            write.write(s + "\n");
-//            i = 0;
-//            s = "";
-//        }
-        //reader.
-        //String n = reader.next();
+        ArrayList<String> dumpFile = dump.dumpDecrypt();
         
+        CreditInfo scan = new CreditInfo();
+        //String[] credit = scan.CreditInfo(dump);
         
-        
-//        byte[] biting = s.getBytes();
-//        
-//        for (int j = 0; j < biting.length; j++) {
-//            System.out.println(", " + biting[i]);
-//       }
-//        System.out.println(s);
+
 
     }
     
 }
+
+

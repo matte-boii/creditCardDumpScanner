@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -23,56 +24,49 @@ public class DumpReader {
         this.read = new FileInputStream(file);
         this.file = file;
         write = new FileWriter("outputAC.txt");
-        dumpDecrypt();
+//        dumpDecrypt();
     }
     
-    public static void dumpDecrypt() throws IOException{
+    public static ArrayList<String> dumpDecrypt() throws IOException{
         int i = 0;
+        char temp;
         String s = "";
+        ArrayList<String> total = new ArrayList<>();
         int nonsense = 0;
         int[] code = new int[32];
         while (read.available() > 0){
             while (i < 32) {
                 code[i] = read.read();
                 if (code[i] < 127 && code[i] > 32) { //avoid special keys
-                    s += (char) code[i];
+                    temp = (char) code[i];
+                    if (temp == ';' || temp == '%'){
+                        total.add(s);
+                    }
+                    s += temp;
+                    
                     nonsense = 0;
                 } else {
                     nonsense++;
                     if (nonsense == 4){
                             System.out.print("..");
-                            write.write(".");
+                            //write.write(".");
                             nonsense = 0;
                     }
                 }
                 code[i] = 0;
                 i++;
             }
-            //System.out.print(s + "\n");
             i = 0;
             
-//            while (i < 32) {
-//                code[i] = read.read();
-//                if (code[i] < 127 && code[i] > 32) { //avoid special keys
-//                    s += (char) code[i];
-//                    nonsense = 0;
-//                } else {
-//                    nonsense++;
-//                    if (nonsense == 4) {
-//                            System.out.print(".");
-//                            write.write(".");
-//                            nonsense = 0;
-//                    }
-//                }
-//                code[i] = 0;
-//                i++;
-//            }
             System.out.print(s + "\n");
-            write.write(s + "\n");
+            //write.write(s + "\n");
             i = 0;
             s = "";
         }
-        write.close();
+        //write.close();
+        return total;
     }
     
 }
+
+
