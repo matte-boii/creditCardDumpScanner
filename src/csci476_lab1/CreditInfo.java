@@ -17,12 +17,12 @@ import java.text.SimpleDateFormat;
  */
 public class CreditInfo {
 
-    private static String[] creditCardNumber = null;
-    private static String primaryAccountNumber = null;
-    private static String name = null;
-    private static String CountryCode = null;
-    private static String expirationDate = null;
-    private static String discretionaryData = null;
+    private static String[] creditCardNumber;
+    private static String primaryAccountNumber;
+    private static String name;
+    private static String CountryCode;
+    private static String expirationDate;
+    private static String discretionaryData;
     private static boolean foundAlphaA;
     private static boolean foundAlphaB;
     private static int alphaIndex = -1;
@@ -63,7 +63,7 @@ public class CreditInfo {
                     }
                     if (foundAlphaB == true) {
                         hashingOutCreditInfo("track2");
-                        creditCardNumber[foundNum] = "%" + primaryAccountNumber + "^" + name + "^" + expirationDate + CountryCode + discretionaryData;
+                        creditCardNumber[foundNum] = ";" + primaryAccountNumber + "^" + expirationDate + discretionaryData;
                         foundNum++;
                         foundAlphaB = false;
                         end = null;
@@ -98,7 +98,28 @@ public class CreditInfo {
                 }
 
             }
+            
         }
+        else if (track == "track2")
+            for (char now : rawdata.toCharArray()) {
+                if (!Character.isDigit(now) && name == null) {
+                    primaryAccountNumber = primaryAccountNumber + now;
+                } else if (Character.isDigit(now) && before.length() < 4) {
+                    before = before + now;
+                }
+                if (before.length() == 4) {
+                    if (DateParser(before, "MMYY")) {
+                        expirationDate = before;
+                    } else {
+                        continue;
+                    }
+                } else if (Character.isDigit(now)) {
+                    discretionaryData = discretionaryData + now;
+                } else if (now == '?') {
+                    return "?";
+                }
+
+            }
         return null;
 
     }
