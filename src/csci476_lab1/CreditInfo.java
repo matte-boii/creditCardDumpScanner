@@ -57,12 +57,14 @@ public class CreditInfo {
                         hashingOutCreditInfo("track1");
                         creditCardNumber.add("%B" + primaryAccountNumber + "^" + name + "^" + expirationDate + CountryCode + discretionaryData);
                         foundAlphaA = false;
+                        alphaIndex = -1;
                         end = null;
                     }
                     if (foundAlphaB == true) {
                         hashingOutCreditInfo("track2");
                         creditCardNumber.add(";" + primaryAccountNumber + "^" + expirationDate + discretionaryData);
                         foundAlphaB = false;
+                        alphaIndex = -1;
                         end = null;
                     }
                 }
@@ -133,7 +135,7 @@ public class CreditInfo {
     }
 
     private static String findingCardInfo(int alphaIndex, String bit, String track) {
-        if (bit.substring(alphaIndex, alphaIndex) == null ? track == null : bit.substring(alphaIndex, alphaIndex).equals(track)) {
+        if (bit.substring(alphaIndex, alphaIndex) == track) {
             bit = bit.substring(alphaIndex, bit.length());
         }
         for (char now : bit.toCharArray()) {
