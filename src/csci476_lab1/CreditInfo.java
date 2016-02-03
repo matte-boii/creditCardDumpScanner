@@ -77,9 +77,9 @@ public class CreditInfo {
         String before = "";
         if ("track1".equals(track)) {
             for (char now : rawdata.toCharArray()) {
-                if (!Character.isDigit(now) && name == null) {
+                if (!Character.isDigit(now) && name.length() < 1) {
                     primaryAccountNumber = primaryAccountNumber + now;
-                } else if ((Character.isAlphabetic(now) || now == '\'') && primaryAccountNumber != null) {
+                } else if ((Character.isAlphabetic(now)) && primaryAccountNumber.length() > 0) {
                     name = name + now;
                 } else if (Character.isDigit(now) && before.length() < 4) {
                     before = before + now;
@@ -87,10 +87,10 @@ public class CreditInfo {
                 if (before.length() == 4) {
                     if (DateParser(before, "MMYY")) {
                         expirationDate = before;
-                    } 
-                        //continue;
+                    }
+                    else before.subSequence(1, before.length());
                     
-                } else if (Character.isDigit(now)) {
+                } if (Character.isDigit(now)) {
                     discretionaryData = discretionaryData + now;
                 } else if (now == '?') {
                     return "?";
