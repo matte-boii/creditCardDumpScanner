@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author darnesey, will
+ * @author Ryan Darnell & Will Paddock
  */
 public class CSCI476_Lab1 {
 

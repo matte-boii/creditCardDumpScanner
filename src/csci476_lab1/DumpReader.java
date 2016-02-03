@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author darnesey
+ * @author Ryan Darnell & Will Paddock
  */
 public class DumpReader {
 
@@ -40,7 +40,9 @@ public class DumpReader {
                 if (code[i] < 127 && code[i] > 32) { //avoid special keys
                     
                     if (code[i] == 37 || code[i] == 59){
-                        total.add(s);
+                        if (s.length() > 25){
+                            total.add(s);
+                        }
                         s = "";
                     }
                     
