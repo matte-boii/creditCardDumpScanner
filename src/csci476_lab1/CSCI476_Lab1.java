@@ -26,10 +26,13 @@ public class CSCI476_Lab1 {
         
         ArrayList<String> dumpFile = dump.dumpDecrypt();
         
+        System.out.println();
+        
         CreditInfo scan = new CreditInfo();
-        String[] credits = scan.scanCredit(dumpFile);
-        for (int i = 0; i < credits.length; i++){
-        	System.out.println(credits[i] + "\n");
+        ArrayList<String> credits = new ArrayList<>();
+                credits = scan.scanCredit(dumpFile);
+        for (int i = 0; i < credits.size(); i++){
+        	System.out.println(credits.get(i) + "\n");
         }
         
         //String[] credit = scan.CreditInfo(dump);

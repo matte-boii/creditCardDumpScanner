@@ -7,7 +7,6 @@ package csci476_lab1;
 
 import java.util.*;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,7 +16,7 @@ import java.text.SimpleDateFormat;
  */
 public class CreditInfo {
 
-    private static String[] creditCardNumber;
+    private static ArrayList<String> creditCardNumber = new ArrayList<>();
     private static String primaryAccountNumber;
     private static String name;
     private static String CountryCode;
@@ -26,10 +25,9 @@ public class CreditInfo {
     private static boolean foundAlphaA;
     private static boolean foundAlphaB;
     private static int alphaIndex = -1;
-    private static int foundNum = 0;
     private static String rawdata = null;
 
-	public static String[] scanCredit(ArrayList<String> input) {
+	public static ArrayList<String> scanCredit(ArrayList<String> input) {
         String end = null;
         String[] dump = new String[input.size()];
         int integer = 0;
@@ -38,6 +36,7 @@ public class CreditInfo {
         	dump[integer] = value;
         	integer++;
         }
+        
         for (String bit : dump) {
             if (!bit.equals(".")) {
                 if (alphaIndex == -1) {
@@ -47,7 +46,7 @@ public class CreditInfo {
                     alphaIndex = lastIndexOfUCL(bit, ';');
                     foundAlphaB = true;
                 }
-                if (alphaIndex != -1 && end != "?") {
+                if (alphaIndex != -1 && !"?".equals(end)) {
                     if (foundAlphaA == true) {
                         end = findingCardInfo(alphaIndex, bit, "B");
                     } else if (foundAlphaB == true) {
@@ -56,15 +55,13 @@ public class CreditInfo {
                 } else if ("?".equals(end)) {
                     if (foundAlphaA == true) {
                         hashingOutCreditInfo("track1");
-                        creditCardNumber[foundNum] = "%B" + primaryAccountNumber + "^" + name + "^" + expirationDate + CountryCode + discretionaryData;
-                        foundNum++;
+                        creditCardNumber.add("%B" + primaryAccountNumber + "^" + name + "^" + expirationDate + CountryCode + discretionaryData);
                         foundAlphaA = false;
                         end = null;
                     }
                     if (foundAlphaB == true) {
                         hashingOutCreditInfo("track2");
-                        creditCardNumber[foundNum] = ";" + primaryAccountNumber + "^" + expirationDate + discretionaryData;
-                        foundNum++;
+                        creditCardNumber.add(";" + primaryAccountNumber + "^" + expirationDate + discretionaryData);
                         foundAlphaB = false;
                         end = null;
                     }
@@ -75,8 +72,8 @@ public class CreditInfo {
     }
 
     private static String hashingOutCreditInfo(String track) {
-        String before = null;
-        if (track == "track1") {
+        String before = "";
+        if ("track1".equals(track)) {
             for (char now : rawdata.toCharArray()) {
                 if (!Character.isDigit(now) && name == null) {
                     primaryAccountNumber = primaryAccountNumber + now;
@@ -88,9 +85,9 @@ public class CreditInfo {
                 if (before.length() == 4) {
                     if (DateParser(before, "MMYY")) {
                         expirationDate = before;
-                    } else {
-                        continue;
-                    }
+                    } 
+                        //continue;
+                    
                 } else if (Character.isDigit(now)) {
                     discretionaryData = discretionaryData + now;
                 } else if (now == '?') {
@@ -100,7 +97,7 @@ public class CreditInfo {
             }
             
         }
-        else if (track == "track2")
+        else if ("track2".equals(track))
             for (char now : rawdata.toCharArray()) {
                 if (!Character.isDigit(now) && name == null) {
                     primaryAccountNumber = primaryAccountNumber + now;
@@ -110,9 +107,7 @@ public class CreditInfo {
                 if (before.length() == 4) {
                     if (DateParser(before, "MMYY")) {
                         expirationDate = before;
-                    } else {
-                        continue;
-                    }
+                    } 
                 } else if (Character.isDigit(now)) {
                     discretionaryData = discretionaryData + now;
                 } else if (now == '?') {
@@ -133,17 +128,16 @@ public class CreditInfo {
                 date = null;
             }
         } catch (ParseException ex) {
-            ex.printStackTrace();
         }
         return true;
     }
 
     private static String findingCardInfo(int alphaIndex, String bit, String track) {
-        if (bit.substring(alphaIndex, alphaIndex) == track) {
+        if (bit.substring(alphaIndex, alphaIndex) == null ? track == null : bit.substring(alphaIndex, alphaIndex).equals(track)) {
             bit = bit.substring(alphaIndex, bit.length());
         }
         for (char now : bit.toCharArray()) {
-            if (now == 'y') {
+            if (now == '?') {
                 rawdata = rawdata + now;
                 return "?";
             } else {
@@ -154,7 +148,7 @@ public class CreditInfo {
     }
 
     public static int lastIndexOfUCL(String str, char looking) {
-        for (int i = 0; i <= str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             if (Character.isUpperCase(str.charAt(i))) {
                 if (str.charAt(i) == looking) {
                     return i;
