@@ -18,14 +18,14 @@ public class CreditInfo {
 
     private static ArrayList<String> creditCardNumber = new ArrayList<>();
     private static String primaryAccountNumber;
-    private static String name;
+    private static String name = "";
     private static String CountryCode;
     private static String expirationDate;
     private static String discretionaryData;
     private static boolean foundAlphaA;
     private static boolean foundAlphaB;
     private static int alphaIndex = -1;
-    private static String rawdata = null;
+    private static String rawdata = "";
 
 	public static ArrayList<String> scanCredit(ArrayList<String> input) {
         String end = null;
@@ -58,14 +58,14 @@ public class CreditInfo {
                         creditCardNumber.add("%B" + primaryAccountNumber + "^" + name + "^" + expirationDate + CountryCode + discretionaryData);
                         foundAlphaA = false;
                         alphaIndex = -1;
-                        end = null;
+                        end = "";
                     }
                     if (foundAlphaB == true) {
                         hashingOutCreditInfo("track2");
                         creditCardNumber.add(";" + primaryAccountNumber + "^" + expirationDate + discretionaryData);
                         foundAlphaB = false;
                         alphaIndex = -1;
-                        end = null;
+                        end = "";
                     }
                 }
             }
@@ -88,7 +88,8 @@ public class CreditInfo {
                     if (DateParser(before, "MMYY")) {
                         expirationDate = before;
                     }
-                    else before.subSequence(1, before.length());
+                    else 
+                        before = before.substring(1, before.length());
                     
                 } if (Character.isDigit(now)) {
                     discretionaryData = discretionaryData + now;
@@ -127,17 +128,21 @@ public class CreditInfo {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
             date = sdf.parse(value);
             if (!value.equals(sdf.format(date))) {
-                date = null;
+                return false;
             }
         } catch (ParseException ex) {
         }
         return true;
     }
+    
+    
 
     private static String findingCardInfo(int alphaIndex, String bit, String track) {
-        if (bit.substring(alphaIndex, alphaIndex) == track) {
-            bit = bit.substring(alphaIndex, bit.length());
+        
+        if (bit.length() > 10 && alphaIndex < bit.length()) {
+            bit = bit.substring(alphaIndex, bit.length() - 1);
         }
+        
         for (char now : bit.toCharArray()) {
             if (now == '?') {
                 rawdata = rawdata + now;
