@@ -6,9 +6,11 @@
 package csci476_lab1;
 
 import java.util.*;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 /**
  *
  * @author Will
@@ -27,8 +29,15 @@ public class CreditInfo {
     private static int foundNum = 0;
     private static String rawdata = null;
 
-    public static String[] CreditInfo(String[] dump) {
+	public static String[] scanCredit(ArrayList<String> input) {
         String end = null;
+        String[] dump = new String[input.size()];
+        int integer = 0;
+        for(String value : input)
+        {
+        	dump[integer] = value;
+        	integer++;
+        }
         for (String bit : dump) {
             if (!bit.equals(".")) {
                 if (alphaIndex == -1) {
