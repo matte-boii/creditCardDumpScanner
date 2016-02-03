@@ -38,30 +38,32 @@ public class DumpReader {
             while (i < 32) {
                 code[i] = read.read();
                 if (code[i] < 127 && code[i] > 32) { //avoid special keys
-                    temp = (char) code[i];
-                    if (temp == ';' || temp == '%'){
+                    
+                    if (code[i] == 37 || code[i] == 59){
                         total.add(s);
+                        s = "";
                     }
-                    s += temp;
+                    
+                    s += (char) code[i];
                     
                     nonsense = 0;
                 } else {
                     nonsense++;
                     if (nonsense == 4){
-                            System.out.print("..");
+                            //System.out.print("..");
                             //write.write(".");
                             nonsense = 0;
                     }
                 }
-                code[i] = 0;
+                code[i] = 0; //clean 'n go
                 i++;
             }
             i = 0;
             
-            System.out.print(s + "\n");
+            //System.out.print(total.get(total.size()-1));
             //write.write(s + "\n");
             i = 0;
-            s = "";
+            
         }
         //write.close();
         return total;
